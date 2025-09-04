@@ -1,0 +1,70 @@
+
+### History Time del Proceso Completo (Bitácora Profesional)
+
+A continuación, se detalla el registro de las fases del análisis de datos realizado sobre el dataset de clientes, siguiendo las directrices establecidas.
+
+**Fase 1: Exploración Inicial de los Datos**
+
+*   **Objetivo:** Obtener una comprensión preliminar de la estructura, contenido y calidad del dataset.
+*   **Acciones Realizadas:**
+    *   Carga del dataset desde la fuente proporcionada (tabla Markdown convertida a DataFrame de pandas).
+    *   Verificación de las dimensiones del dataset (`.shape`). Se identificaron 199 filas y 10 columnas.
+    *   Inspección de los tipos de datos (`.dtypes`). Se observó que las columnas numéricas (`CustomerID`, `Age`, `Annual Income (k$)`, `Spending Score (1-100)`, `Estimated Savings (k$)`, `Credit Score`, `Loyalty Years`) fueron inferidas correctamente, mientras que las categóricas (`Gender`, `Age Group`, `Preferred Category`) se identificaron como `object`.
+    *   Identificación de valores nulos (`.isnull().sum()`). Se encontraron valores nulos significativos en las columnas `Loyalty Years` y `Preferred Category`.
+    *   Identificación de filas duplicadas (`.duplicated().sum()`). No se encontraron filas duplicadas.
+    *   Análisis de estadísticas descriptivas (`.describe()` y `.describe(include='object')`). Esto proporcionó un resumen de la distribución de los datos numéricos (media, desviación estándar, min, max, cuartiles) y categóricos (conteo, únicos, top, frecuencia). Se notaron posibles inconsistencias o alta cardinalidad en la columna `Age Group` en la descripción inicial.
+*   **Decisiones Tomadas:** Se confirmó la necesidad de una fase de limpieza de datos para tratar los valores nulos y abordar la inconsistencia en la columna `Age Group`. Las estadísticas descriptivas preliminares sugirieron la presencia de posibles *outliers* que serían explorados con visualizaciones más adelante.
+
+**Fase 2: Limpieza y Transformación de Datos**
+
+*   **Objetivo:** Preparar el dataset para el análisis, manejando valores faltantes, inconsistencias y preparando columnas para futuras visualizaciones.
+*   **Acciones Realizadas:**
+    *   Creación de una copia del DataFrame original (`df_model`) para preservar los datos crudos.
+    *   Tratamiento de valores nulos en `Loyalty Years`: Se imputaron los valores faltantes con la **mediana** (6.0), justificado porque es una variable numérica y la mediana es robusta ante posibles *outliers* en la distribución de años de lealtad.
+    *   Tratamiento de valores nulos en `Preferred Category`: Se imputaron los valores faltantes con la **moda** ('Electronics '), justificado porque es una variable categórica y la moda representa la categoría más frecuente.
+    *   Corrección de la columna `Age Group`: Dada la alta cardinalidad y la presencia de valores `nan` en la columna original, se decidió regenerarla utilizando la columna `Age` y rangos de edad definidos (`<18`, `18-25`, `26-35`, `36-50`, `51-65`, `65+`). Se utilizó `pd.cut` para esta tarea. La columna original fue reemplazada por la corregida.
+*   **Decisiones Tomadas:** Se priorizó la imputación sobre la eliminación de filas o columnas con nulos para retener la mayor cantidad de información posible. La regeneración de `Age Group` aseguró una categorización consistente y útil para el análisis segmentado. Se pospuso el tratamiento formal de *outliers* para después de las visualizaciones en la fase de análisis.
+
+**Fase 3: Extracción de Insights Clave**
+
+*   **Objetivo:** Analizar las relaciones entre variables y descubrir patrones significativos en el comportamiento del cliente.
+*   **Acciones Realizadas:**
+    *   Análisis de distribuciones de variables clave (`Age`, `Annual Income (k$)`, `Spending Score (1-100)`) mediante **histogramas** y **gráficos de conteo** (`Gender`, `Age Group`, `Preferred Category`).
+    *   Exploración de relaciones entre variables numéricas clave (`Annual Income (k$)` vs `Spending Score (1-100)`, `Age` vs `Spending Score (1-100)`, `Annual Income (k$)` vs `Estimated Savings (k$)`) mediante **gráficos de dispersión (scatter plots)**.
+    *   Cálculo de métricas agregadas clave: Gasto promedio por Género, Ingreso promedio por Grupo de Edad, Puntuación de Crédito promedio por Categoría Preferida.
+*   **Decisiones Tomadas:** Se seleccionaron visualizaciones que mejor representaban la distribución y las relaciones entre los tipos de variables. El análisis agregado proporcionó resúmenes numéricos de tendencias clave. Los *scatter plots* revelaron posibles agrupaciones de clientes basadas en Ingreso Anual y Spending Score (clusters potenciales). Se corrigió una advertencia de `FutureWarning` en `groupby` especificando `observed=True`.
+
+**Fase 4: Diseño de Dashboard Empresarial**
+
+*   **Objetivo:** Proponer una estructura de dashboard y definir los KPIs y visualizaciones que respondan a objetivos de negocio.
+*   **Acciones Realizadas:**
+    *   Definición del objetivo principal del dashboard: Proveer una visión general del comportamiento del cliente y su segmentación.
+    *   Propuesta de KPIs estratégicos basados en el análisis previo, cubriendo aspectos demográficos, financieros y de comportamiento de gasto/lealtad.
+    *   Selección de tipos de visualizaciones adecuados para cada KPI (tarjetas, gráficos de barras, pastel, histogramas, scatter plots, tablas).
+    *   Esbozo de un layout o estructura del dashboard, sugiriendo secciones lógicas (Resumen Ejecutivo, Análisis de Gasto/Ingreso, Análisis por Categoría/Lealtad, Información Financiera).
+    *   Inclusión de elementos interactivos clave como filtros/segmentadores.
+*   **Decisiones Tomadas:** Se priorizaron KPIs y visualizaciones que ofrecen información accionable para marketing y ventas. El diseño propuesto busca un equilibrio entre una vista general y la capacidad de segmentación.
+
+**Fase 5: Implementación Paso a Paso del Dashboard**
+
+*   **Objetivo:** Proporcionar una guía práctica para trasladar el diseño del dashboard a una herramienta de BI, preparando los datos necesarios.
+*   **Acciones Realizadas:**
+    *   Generación de los datos o cálculos necesarios en Python para cada uno de los KPIs propuestos (conteo total, conteos por categoría, promedios por grupo, etc.).
+    *   Inclusión de "Guías BI" textuales para cada KPI o visualización, explicando cómo utilizar los datos generados o las columnas del `df_cleaned` en una herramienta como Power BI, Tableau o Looker Studio.
+    *   Explicación sobre la conexión del DataFrame `df_cleaned` como fuente de datos (modelo plano).
+    *   Guía sobre la configuración de filtros interactivos.
+*   **Decisiones Tomadas:** Se optó por generar los datos agregados necesarios en Python para facilitar la creación de las visualizaciones en la herramienta de BI. Se enfatizó la importancia de usar el DataFrame limpio (`df_cleaned`) como la única tabla en el modelo de datos para este caso simple.
+
+**Fase 6: Análisis Más Detallado (Simulación de Escenario de Negocio)**
+
+*   **Objetivo:** Simular un escenario de negocio basado en los hallazgos para demostrar la aplicabilidad del análisis.
+*   **Acciones Realizadas:** (Este paso se detallará en la siguiente interacción).
+*   **Decisiones Tomadas:** Pendiente de ejecución.
+
+**Fase 7: Descargar el Dataset con todos los cambios realizados.**
+
+*   **Objetivo:** Proporcionar el código para guardar el DataFrame limpio y transformado.
+*   **Acciones Realizadas:** (Este paso se detallará en una interacción posterior).
+*   **Decisiones Tomadas:** Pendiente de ejecución.
+
+Esta bitácora resume el progreso hasta ahora, destacando las acciones y justificaciones en cada fase.
